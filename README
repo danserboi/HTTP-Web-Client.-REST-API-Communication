@@ -1,0 +1,78 @@
+SERBOI FLOREA-DAN 325CB
+
+Tema este compusa din urmatoarele fisiere:
+	- buffer.h, unde este definit un tip buffer pentru mesaje si sunt 
+prezente semnaturile functiilor definite in buffer.c 
+	- buffer.c, unde sunt definite functii care lucreaza cu tipul buffer: 
+buffer_init(initializare buffer), buffer_destroy(distrugere buffer), 
+buffer_add(adauga informatie noua la un buffer), buffer_is_empty(verifica daca 
+buffer-ul e gol), buffer_find(cauta informatie in buffer si returneaza 
+pozitia), buffer_find_insensitive(cauta informatie in buffer in varianta 
+insensitive)
+	- helpers.h, unde este definita lungimea maxima a buffer-ului si a unei 
+linii si sunt prezente semnaturile functiilor definite in helpers.c
+	- helpers.c, unde sunt definite functii ajutatoare pentru a comunica cu 
+un server: error(afiseaza eroarea curenta), compute_message(adauga o linie noua 
+unui mesaj de tip string), open_connection(deschide o conexiune cu un server), 
+close_connection(inchide conexiunea cu server-ul), send_to_server(trimite mesaj 
+catre server), receive_from_server(primeste mesaj de la server pe care il 
+returneaza)
+	- parson.c si parson.h care reprezinta o biblioteca cu diferite 
+operatii pentru JSON. Aceasta a fost aleasa deoarece este scrisa in limbajul C 
+si furnizeaza o parsare corecta, rapida si usoara a unui JSON si, de asemenea, 
+functiile puse la indemana sunt de mare folos pentru a putea construi un 
+payload JSON.
+	- requests.c si requests.h unde sunt definite urmatoarele functii:
+		- get_ip : aceasta functie primeste un nume de host si 
+returneaza o adresa IPV4 corespunzatoare host-ului
+		- compute_get_request - aceasta functie construieste o cerere 
+HTTP de tip GET, la care se poate adauga cookie/header de autorizare
+		- compute_post_request - aceasta functie construieste o cerere 
+HTTP de tip POST, la care se poate adauga cookie/header de autorizare
+		- compute_post_request - aceasta functie construieste o cerere 
+HTTP de tip DELETE, la care se poate adauga cookie/header de autorizare
+		- reg, unde este tratata comanda "register". Aici se citesc 
+username-ul si parola de la tastatura, se creeaza un JSON payload cu acestea, 
+se trimite un POST request cu acestea catre server pentru a crea o noua 
+inregistrare si se afiseaza raspunsul primit de la server.
+		- login, unde este tratata comanda "login". Intai se verifica 
+daca nu exista deja un client logat. Alfel, aici se citesc username-ul si 
+parola de la tastatura, se creeaza un JSON payload cu acestea, se trimite un 
+POST request cu acestea catre server pentru autentificare si se afiseaza 
+raspunsul primit de la server. Daca raspunsul este OK, se stocheaza cookie-ul 
+de logare primit.
+		- enter_library, unde este tratata comanda "enter_library". 
+Aici se trimite un GET request catre server(care contine cookie-ul de logare) 
+pentru a  putea avea acces la bibloteca. Daca raspunsul primit este OK, atunci 
+stocam JWT token-ul primit pentru autorizare. Daca nu primim token valid, se 
+afiseaza mesaj de eroare si se iese din functie.
+		- get_books, unde este trata comanda "get_books". Aici se 
+trimite un GET request catre server(care contine JWT token-ul pentru 
+autorizare). Daca totul este in regula, primim raspuns cu informatii sumare 
+despre toate cartile din biblioteca.
+		- get_book, unde este tratata comanda "get_book". Aici se 
+citeste ID-ul de la stdin, si se trimite un GET request catre server(care 
+contine JWT token-ul pentru autorizare). Daca totul este in regula, primim 
+raspuns cu toate informatiile despre cartea solicitata.
+		- add_book, unde este tratata comanda "add_book". Aici se 
+citesc titlul, autorul, genul, editura, numarul de pagini pentru o carte. Daca 
+numarul de pagini nu este valid, se afiseaza un mesaj de eroare si se iese din 
+functie. Apoi se construieste un payload JSON cu aceste informatii introduse de 
+la tastatura pentru a putea trimite o cerere POST(care contine JWT token-ul 
+pentru autorizare). Se afiseaza raspunsul primit.
+		- delete_book, unde este tratata comanda "delete_book". Aici se 
+citeste id-ul cartii dupa care se trimite o cerere HTTP de tip DELETE(care 
+contine JWT token-ul pentru autorizare) care sa elimine cartea dorita din 
+biblioteca. Se afiseaza raspunsul.
+		- logout, unde este tratata comanda "logout". Ne putem 
+deconecta doar daca suntem deja conectati cu un utilizator. Daca nu e cazul, 
+afisam mesaj de eroare si iesim din functie. Altfel, trimitem o cerere HTTP de 
+tip GET pentru a ne putea deloga. Afisam raspunsul primit. Aruncam cookie-ul de 
+logare si token-ul JWT.
+	- client.c, care este nucleul. Aici se citesc de la tastatura comenzi 
+si se apeleaza functia care se ocupa de comanda respectiva(pentru exit, se iese 
+din bucla, se elibereaza memoria pentru login_cookie si JWT daca este cazul si 
+se incheie programul).
+
+Mentiune:
+	- toata memoria alocata dinamic este si dezalocata.
